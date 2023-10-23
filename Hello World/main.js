@@ -113,10 +113,12 @@ var material = new Array();//new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 var cubes = Array();// = new THREE.Mesh( geometry, material );
 //scene.add( cube );
 
-camera.position.z = -50;
+camera.position.z = -30;
 
 var centrePoints = [0,0];
-var numberOfObjects = 90;
+var numberOfObjects = 90, depth=100;
+var oIndex=0;
+
 //colours
 var maxValue = 255;
 var maxColourDitherSteps = 128;
@@ -132,25 +134,30 @@ controls.update();
 
 function setUp()
 {
-	for(var oCount=0; oCount<numberOfObjects; oCount++)
+	for(var depthCounter=0; depthCounter<depth; depthCounter++)
 	{
-		centrePoints = getCircularPoints(0, 0, 30, (360/numberOfObjects)*oCount);
-		cObjectOne.getColour(innerCIndex%cObjectOne._bandWidth);
-		geometry.push(new THREE.BoxGeometry( 1, 1, 1 ));
-		material.push(new THREE.MeshBasicMaterial( { color: 0x00ff00 } ));
-		
-		material[oCount].color.r = cObjectOne._currentColour[0]/255;
-		material[oCount].color.g = cObjectOne._currentColour[1]/255;
-		material[oCount].color.b = cObjectOne._currentColour[2]/255;
-		
-		cubes.push(new THREE.Mesh( geometry[oCount], material[oCount] ));
-		cubes[oCount].position.x = centrePoints[0];
-		cubes[oCount].position.y = centrePoints[1];
-		cubes[oCount].position.z = 0;
-		scene.add( cubes[ oCount ] );
-		innerCIndex+=cIncrement;
+		for(var oCount=0; oCount<numberOfObjects; oCount++)
+		{
+			oIndex = oCount+(depthCounter*numberOfObjects);
+			centrePoints = getCircularPoints(0, 0, 30, (360/numberOfObjects)*oCount); //30-((depthCounter/100)*50)
+			cObjectOne.getColour(innerCIndex%cObjectOne._bandWidth);
+			geometry.push(new THREE.BoxGeometry( 1, 1, 1 ));
+			material.push(new THREE.MeshBasicMaterial( { color: 0x00ff00 } ));
+			
+			material[oIndex].color.r = cObjectOne._currentColour[0]/255;
+			material[oIndex].color.g = cObjectOne._currentColour[1]/255;
+			material[oIndex].color.b = cObjectOne._currentColour[2]/255;
+			material[oIndex].wireframe=true;
+			cubes.push(new THREE.Mesh( geometry[oIndex], material[oIndex] ));
+			cubes[oIndex].position.x = centrePoints[0];
+			cubes[oIndex].position.y = centrePoints[1];
+			cubes[oIndex].position.z = ((depthCounter/100)*500);
+			scene.add( cubes[ oIndex ] );
+			innerCIndex+=cIncrement;
+		}
 	}
 	innerCIndex=0;
+	console.log(material[0]);
 }
 
 function animate() 
@@ -163,14 +170,20 @@ function animate()
 	//cube.scale.z = cube.rotation.x;
 	
 	innerCIndex = cIndex;
-	for(var oCount=0; oCount<numberOfObjects; oCount++)
+	
+	for(var depthCounter=0; depthCounter<depth; depthCounter++)
 	{
-		cObjectOne.getColour(innerCIndex%cObjectOne._bandWidth);
-		material[oCount].color.r = cObjectOne._currentColour[0]/255;
-		material[oCount].color.g = cObjectOne._currentColour[1]/255;
-		material[oCount].color.b = cObjectOne._currentColour[2]/255;
-		innerCIndex+=cIncrement;
+		for(var oCount=0; oCount<numberOfObjects; oCount++)
+		{
+			oIndex = oCount+(depthCounter*numberOfObjects);
+			cObjectOne.getColour(innerCIndex%cObjectOne._bandWidth);
+			material[oIndex].color.r = cObjectOne._currentColour[0]/255;
+			material[oIndex].color.g = cObjectOne._currentColour[1]/255;
+			material[oIndex].color.b = cObjectOne._currentColour[2]/255;
+			innerCIndex+=cIncrement;
+		}
 	}
+	
 	cIndex+=cIncrement;
 	
 	controls.update();
