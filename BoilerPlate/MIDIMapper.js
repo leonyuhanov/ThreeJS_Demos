@@ -14,6 +14,16 @@ class MIDIMapper
 		this.midiMapArray.push([MIDIChan, CCID, controlName, 0, 0, scaleToValue, new Array(), 0])
 		this.numberOfItems = this.midiMapArray.length;
 	}
+	changeScaleToValue = function(controlName, scaleToValue)
+	{
+		for(this.innerCounter=0; this.innerCounter<this.numberOfItems; this.innerCounter++)
+		{
+			if(this.midiMapArray[this.innerCounter][2]==controlName)
+			{
+				this.midiMapArray[this.innerCounter][5] = scaleToValue;
+			}
+		}
+	}
 	scaleTo = function(value, scaleTo)
 	{
 		return (value/127)*scaleTo;
@@ -78,6 +88,7 @@ class MIDIMapper
 				//Midi value 0-127 from the above scaled value
 				this.midiMapArray[this.innerCounter][3] = value*127;
 				this.midiMapArray[this.innerCounter][7] = 1;
+				console.log("\tSet ["+controlName+"] to ["+this.midiMapArray[this.innerCounter][4]+"]");
 				return;
 			}
 		}
@@ -91,6 +102,7 @@ class MIDIMapper
 				this.midiMapArray[this.innerCounter][3] = value;
 				this.midiMapArray[this.innerCounter][4] = this.scaleTo( value, this.midiMapArray[this.innerCounter][5] );
 				this.midiMapArray[this.innerCounter][7] = 1;
+				console.log("\tSet ["+controlName+"] to ["+this.midiMapArray[this.innerCounter][4]+"]");
 				return;
 			}
 		}
@@ -103,6 +115,17 @@ class MIDIMapper
 			{
 				this.midiMapArray[this.innerCounter][7] = 0;
 				return this.midiMapArray[this.innerCounter][4];
+			}
+		}
+	}
+	getValueArray = function(controlName)
+	{
+		for(this.innerCounter=0; this.innerCounter<this.numberOfItems; this.innerCounter++)
+		{
+			if(this.midiMapArray[this.innerCounter][2]==controlName)
+			{
+				this.midiMapArray[this.innerCounter][7] = 0;
+				return this.midiMapArray[this.innerCounter][6];
 			}
 		}
 	}
