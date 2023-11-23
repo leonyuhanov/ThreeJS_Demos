@@ -70,7 +70,7 @@ class MIDIMapper
 		{
 			if(this.midiMapArray[this.innerCounter][2]==controlName)
 			{
-				console.log(valueArray);
+				//console.log(valueArray);
 				this.midiMapArray[this.innerCounter][6] = valueArray;
 				//set flag indicating value has changed
 				this.midiMapArray[this.innerCounter][7] = 1;
@@ -88,7 +88,7 @@ class MIDIMapper
 				//Midi value 0-127 from the above scaled value
 				this.midiMapArray[this.innerCounter][3] = value*127;
 				this.midiMapArray[this.innerCounter][7] = 1;
-				console.log("\tSet ["+controlName+"] to ["+this.midiMapArray[this.innerCounter][4]+"]");
+				//console.log("\tSet ["+controlName+"] to ["+this.midiMapArray[this.innerCounter][4]+"]");
 				return;
 			}
 		}
@@ -102,7 +102,7 @@ class MIDIMapper
 				this.midiMapArray[this.innerCounter][3] = value;
 				this.midiMapArray[this.innerCounter][4] = this.scaleTo( value, this.midiMapArray[this.innerCounter][5] );
 				this.midiMapArray[this.innerCounter][7] = 1;
-				console.log("\tSet ["+controlName+"] to ["+this.midiMapArray[this.innerCounter][4]+"]");
+				//console.log("\tSet ["+controlName+"] to ["+this.midiMapArray[this.innerCounter][4]+"]");
 				return;
 			}
 		}

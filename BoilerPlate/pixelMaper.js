@@ -8,6 +8,9 @@ class pixelMaper
 		this.colCounter = 0;
 		this.rowCounter = 0;
 		this.tempRow = new Array();
+		this.boxDimensions = [1,1,1];
+		this.mapLocation = [0,0];
+		this.spacing = 1;
 		
 		for(this.rowCounter=0; this.rowCounter<this.rows; this.rowCounter++)
 		{
@@ -72,6 +75,34 @@ class pixelMaper
 		}
 	}
 	
+	renderRecetangle = function(x, width, y, height, pixColour)
+	{
+		this.renderHLine(x, y, width, pixColour);
+		this.renderHLine(x, y+height, width, pixColour);
+		this.renderVLine(x, y, height, pixColour);
+		this.renderVLine(x+width, y, height, pixColour);
+	}
+	
+	renderPolly = function(x, y, radius, numberOfPoints, pixColour)
+	{
+		var pointCounter;
+		var startPoints = [0,0];
+		var endPoints = [0,0];
+		for(pointCounter=0; pointCounter<numberOfPoints; pointCounter++)
+		{
+			startPoints = this.getCircularPoints(x, y, radius, (360/numberOfPoints)*pointCounter);
+			if(pointCounter+1<numberOfPoints)
+			{
+				endPoints = this.getCircularPoints(x, y, radius, (360/numberOfPoints)*(pointCounter+1));
+			}
+			else
+			{
+				endPoints = this.getCircularPoints(x, y, radius, 0);
+			}
+			this.drawLine(startPoints[0], startPoints[1], endPoints[0], endPoints[1], pixColour);
+		}
+	}
+	
 	fill = function(xStart, yStart, width, height, pixColour)
 	{
 		var xp, yp;
@@ -91,16 +122,32 @@ class pixelMaper
 		for(degCounter=0; degCounter<360; degCounter+=degreePointIncrement)
 		{
 			cPoints = this.getCircularPoints(cX, cY, radius, degCounter);
-			this.drawPixel(cPoints[0], cPoints[1], pixColour);
+			this.drawPixel(Math.round(cPoints[0]), Math.round(cPoints[1]), pixColour);
 		}
 	}
 	
-	getCircularPoints = function (circleX, circleY, circleR, angleFromTopLeftoRight)
+	getCircularPoints = function(circleX, circleY, circleR, angleFromTopLeftoRight)
+	{
+		var circCoOrds = [0, 0];
+		angleFromTopLeftoRight+=180;
+		circCoOrds[0] = circleX + Math.sin(angleFromTopLeftoRight*(Math.PI / 180))*circleR ;
+		circCoOrds[1] = circleY - Math.cos(angleFromTopLeftoRight*(Math.PI / 180))*circleR;
+		return circCoOrds;
+	}
+	
+	getCircularPointsRaw = function(circleX, circleY, circleR, angleFromTopLeftoRight)
 	{
 		var circCoOrds = [0, 0];
 		circCoOrds[0] = circleX + Math.sin(angleFromTopLeftoRight*(Math.PI / 180))*circleR ;
 		circCoOrds[1] = circleY - Math.cos(angleFromTopLeftoRight*(Math.PI / 180))*circleR;
 		return circCoOrds;
+	}
+	getAdvancedCircularPoints = function(cX, cY, radius, angleFromTopLeftoRight, xFactor, yFactor, xxFactor, yyFactor)
+	{
+		var cPoints = [0,0];
+		cPoints[0] = Math.round( cX + Math.sin(angleFromTopLeftoRight*xFactor*(Math.PI / 180))*radius*xxFactor );
+		cPoints[1] = Math.round( cY - Math.cos(angleFromTopLeftoRight*yFactor*(Math.PI / 180))*radius*yyFactor );
+		return cPoints;
 	}
 	
 	subtractiveFade = function(fadeLevel)
@@ -283,13 +330,13 @@ class pixelMaper
 		}
 	}
 	
+	//for spherical maps
 	pixelPositionAt = function(x, y, realRadius)
 	{
 		var verticalMap, horizontalMap;
 				
 		if(y==Math.round(this.rows/2))
 		{
-			//console.log("Frame["+frameCounter+"]\t\tx["+x+"]\ty["+y+"]\trows/2["+this.rows/2+"]\trounded rows["+Math.round(this.rows/2)+"]");
 			verticalMap = this.getCircularPoints(0, 0, realRadius, 90);
 		}
 		else if(y<Math.round(this.rows/2))
@@ -306,6 +353,11 @@ class pixelMaper
 		return [horizontalMap[0],verticalMap[1],horizontalMap[1]];
 	}
 	
+	pixelAt = function(x, y)
+	{
+		return this.bitmapArray[y][x];
+	}
+	
 	hasColour = function(x, y)
 	{
 		if( (this.bitmapArray[y][x][0]+this.bitmapArray[y][x][1]+this.bitmapArray[y][x][2])>0 )
@@ -318,9 +370,16 @@ class pixelMaper
 		}
 	}
 	
+	getHeight = function(x, y, range)
+	{
+		var currentPixel = this.pixelAt(x, y);
+		var returnValue = currentPixel[0]+currentPixel[1]+currentPixel[2];
+		return (returnValue/(256*3))*range;
+	}
+	
 	getWave = function(counter, minWave, maxWave)
 	{
-		return Math.round( ( Math.sin(counter)*((maxWave-minWave)/2) )+( maxWave-((maxWave-minWave)/2) ) );
+		return ( Math.sin(counter)*((maxWave-minWave)/2) )+( maxWave-((maxWave-minWave)/2) );
 	}
 }
 export default pixelMaper;
