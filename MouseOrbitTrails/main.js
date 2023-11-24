@@ -81,24 +81,12 @@ function setUp()
 	MIDISTore.addItem(176,3,"radius", 200);
 	MIDISTore.setValue("radius", 50);
 
-	MIDISTore.addItem(176,4,"xFactor", 2*Math.PI);
-	MIDISTore.setValue("xFactor", 1);
-	MIDISTore.addItem(176,5,"yFactor", 2*Math.PI);
-	MIDISTore.setValue("yFactor", 1);
-	MIDISTore.addItem(176,6,"xxFactor", 2*Math.PI);
-	MIDISTore.setValue("xxFactor", 1);
-	MIDISTore.addItem(176,7,"yyFactor", 2*Math.PI);
-	MIDISTore.setValue("yyFactor", 1);
-	MIDISTore.addItem(176,8,"xWaveIncrement", 1);
-	MIDISTore.setValue("xWaveIncrement", 0.01);
-	MIDISTore.addItem(176,9,"yWaveIncrement", 1);
-	MIDISTore.setValue("yWaveIncrement", 0.01);
-	MIDISTore.addItem(176,10,"orbitSpeed", 10);
+	MIDISTore.addItem(176,4,"orbitSpeed", 10);
 	MIDISTore.setValue("orbitSpeed", 1);
-	MIDISTore.addItem(176,11,"xxOrbitTimer", 500);
+	MIDISTore.addItem(176,5,"xxOrbitTimer", 500);
 	MIDISTore.setValue("xxOrbitTimer", 100);
-	MIDISTore.addItem(176,12,"yyOrbitTimer", 500);
-	MIDISTore.setValue("yyOrbitTimer", 100);
+	MIDISTore.addItem(176,6,"trailSpacing", 90);
+	MIDISTore.setValue("trailSpacing", 10);
 
 	
 	
@@ -128,7 +116,8 @@ function setUp()
 		orbitTape[mpCount] = [localDegIndex,localXXFactor,localYYFactor];
 		for(oCount=0; oCount<orbitTrailCount; oCount++)
 		{
-			orbitTrailTape[(mpCount*orbitTrailCount)+oCount] = [localDegIndex+((360/orbitTrailCount)*oCount), localXXFactor, localYYFactor];
+			//orbitTrailTape[(mpCount*orbitTrailCount)+oCount] = [localDegIndex+((360/orbitTrailCount)*oCount), localXXFactor, localYYFactor];
+			orbitTrailTape[(mpCount*orbitTrailCount)+oCount] = [localDegIndex+MIDISTore.getValue("trailSpacing")*(oCount+1), localXXFactor, localYYFactor];
 		}
 	}
 	
@@ -259,7 +248,8 @@ function animate()
 			//render trails
 			for(localTrailCounter=0; localTrailCounter<orbitTrailCount; localTrailCounter++)
 			{
-				centrePoints = pixelMap.getAdvancedCircularPoints(objects[0].position.x, objects[0].position.y, MIDISTore.getValue("radius"), orbitTrailTape[(mpointCount*orbitTrailCount)+localTrailCounter][0], 1, 1, orbitTrailTape[(mpointCount*orbitTrailCount)+localTrailCounter][1], orbitTrailTape[(mpointCount*orbitTrailCount)+localTrailCounter][2]);
+				//centrePoints = pixelMap.getAdvancedCircularPoints(objects[0].position.x, objects[0].position.y, MIDISTore.getValue("radius"), orbitTrailTape[(mpointCount*orbitTrailCount)+localTrailCounter][0], 1, 1, orbitTrailTape[(mpointCount*orbitTrailCount)+localTrailCounter][1], orbitTrailTape[(mpointCount*orbitTrailCount)+localTrailCounter][2]);
+				centrePoints = pixelMap.getAdvancedCircularPoints(objects[0].position.x, objects[0].position.y, MIDISTore.getValue("radius"), orbitTape[mpointCount][0]+((localTrailCounter+1)*MIDISTore.getValue("trailSpacing")), 1, 1, orbitTrailTape[(mpointCount*orbitTrailCount)+localTrailCounter][1], orbitTrailTape[(mpointCount*orbitTrailCount)+localTrailCounter][2]);
 				trails_objects[(mpointCount*orbitTrailCount)+localTrailCounter].position.x = centrePoints[0];
 				trails_objects[(mpointCount*orbitTrailCount)+localTrailCounter].position.y = centrePoints[1];
 				trails_material[(mpointCount*orbitTrailCount)+localTrailCounter].color.r = cObjectOne._currentColour[0]/255;
