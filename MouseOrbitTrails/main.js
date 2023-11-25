@@ -87,6 +87,8 @@ function setUp()
 	MIDISTore.setValue("xxOrbitTimer", 100);
 	MIDISTore.addItem(176,6,"trailSpacing", 90);
 	MIDISTore.setValue("trailSpacing", 10);
+	MIDISTore.addItem(176,7,"blockSize", 20);
+	MIDISTore.setValue("blockSize", 1);
 
 	
 	
@@ -193,7 +195,7 @@ function setUpObjects()
 	for(localObjectCounter=1; localObjectCounter<localObjectCount; localObjectCounter++)
 	{
 		localCentrePoints = pixelMap.getAdvancedCircularPoints(0, 0, MIDISTore.getValue("radius"), orbitTape[localObjectCounter-1][0], 1, 1, orbitTape[localObjectCounter-1][1], orbitTape[localObjectCounter-1][2]);
-		geometry.push( new THREE.BoxGeometry( 1, 1, 1 ) );
+		geometry.push( new THREE.BoxGeometry( MIDISTore.getValue("blockSize"), MIDISTore.getValue("blockSize"), MIDISTore.getValue("blockSize") ) );
 		material.push( new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
 		material[localObjectCounter].opacity = 1;
 		material[localObjectCounter].transparent = true;
@@ -207,7 +209,7 @@ function setUpObjects()
 		for(localTrailCounter=0; localTrailCounter<orbitTrailCount; localTrailCounter++)
 		{
 			localCentrePoints = pixelMap.getAdvancedCircularPoints(0, 0, MIDISTore.getValue("radius"), orbitTrailTape[((localObjectCounter-1)*orbitTrailCount)+localTrailCounter][0], 1, 1, orbitTrailTape[((localObjectCounter-1)*orbitTrailCount)+localTrailCounter][1], orbitTrailTape[((localObjectCounter-1)*orbitTrailCount)+localTrailCounter][2]);
-			trails_geometry.push( new THREE.BoxGeometry( 1, 1, 1 ) );
+			trails_geometry.push( new THREE.BoxGeometry( MIDISTore.getValue("blockSize"), MIDISTore.getValue("blockSize"), MIDISTore.getValue("blockSize") ) );
 			trails_material.push( new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
 			trails_material[((localObjectCounter-1)*orbitTrailCount)+localTrailCounter].opacity = 1-(localTrailCounter/orbitTrailCount);
 			trails_material[((localObjectCounter-1)*orbitTrailCount)+localTrailCounter].transparent = true;
@@ -239,6 +241,9 @@ function animate()
 			centrePoints = pixelMap.getAdvancedCircularPoints(objects[0].position.x, objects[0].position.y, MIDISTore.getValue("radius"), orbitTape[mpointCount][0], 1, 1, orbitTape[mpointCount][1], orbitTape[mpointCount][2]);
 			objects[mpStart].position.x = centrePoints[0];
 			objects[mpStart].position.y = centrePoints[1];
+			objects[mpStart].scale.x = MIDISTore.getValue("blockSize");
+			objects[mpStart].scale.y = MIDISTore.getValue("blockSize");
+			objects[mpStart].scale.z = MIDISTore.getValue("blockSize");
 			//colour modification
 			cObjectOne.getColour( innerCIndex%cObjectOne._bandWidth );
 			material[mpStart].color.r = cObjectOne._currentColour[0]/255;
@@ -252,6 +257,9 @@ function animate()
 				centrePoints = pixelMap.getAdvancedCircularPoints(objects[0].position.x, objects[0].position.y, MIDISTore.getValue("radius"), orbitTape[mpointCount][0]+((localTrailCounter+1)*MIDISTore.getValue("trailSpacing")), 1, 1, orbitTrailTape[(mpointCount*orbitTrailCount)+localTrailCounter][1], orbitTrailTape[(mpointCount*orbitTrailCount)+localTrailCounter][2]);
 				trails_objects[(mpointCount*orbitTrailCount)+localTrailCounter].position.x = centrePoints[0];
 				trails_objects[(mpointCount*orbitTrailCount)+localTrailCounter].position.y = centrePoints[1];
+				trails_objects[(mpointCount*orbitTrailCount)+localTrailCounter].scale.x = MIDISTore.getValue("blockSize");
+				trails_objects[(mpointCount*orbitTrailCount)+localTrailCounter].scale.y = MIDISTore.getValue("blockSize");
+				trails_objects[(mpointCount*orbitTrailCount)+localTrailCounter].scale.z = MIDISTore.getValue("blockSize");
 				trails_material[(mpointCount*orbitTrailCount)+localTrailCounter].color.r = cObjectOne._currentColour[0]/255;
 				trails_material[(mpointCount*orbitTrailCount)+localTrailCounter].color.g = cObjectOne._currentColour[1]/255;
 				trails_material[(mpointCount*orbitTrailCount)+localTrailCounter].color.b = cObjectOne._currentColour[2]/255;
