@@ -149,6 +149,50 @@ class pixelMaper
 		cPoints[1] = Math.round( cY - Math.cos(angleFromTopLeftoRight*yFactor*(Math.PI / 180))*radius*yyFactor );
 		return cPoints;
 	}
+	getCircluarPoints3D = function(cX, cY, radius, angleFromTopLeftoRight, angleOffAxis)
+	{
+		var flatCircularPoints = [0,0];
+		var zedCircluarPoints = [0,0];
+		var threeDimensionCircularPoints = [0,0,0];
+		
+		//work out the standard circular points for x and y for the 2d plane
+		flatCircularPoints = this.getCircularPointsRaw(cX, cY, radius, angleFromTopLeftoRight);
+		zedCircluarPoints = this.getCircularPointsRaw(cX, cY, flatCircularPoints[1], 360-angleOffAxis);
+		
+		if(angleOffAxis<90)
+		{
+			threeDimensionCircularPoints[0] = flatCircularPoints[0];
+			threeDimensionCircularPoints[1] = flatCircularPoints[1];
+			threeDimensionCircularPoints[2] = zedCircluarPoints[0];
+		}
+		else if(angleOffAxis<270)
+		{
+			threeDimensionCircularPoints[0] = flatCircularPoints[0];
+			threeDimensionCircularPoints[1] = zedCircluarPoints[0];
+			threeDimensionCircularPoints[2] = flatCircularPoints[1];
+		}
+		else
+		{
+			threeDimensionCircularPoints[0] = flatCircularPoints[0];
+			threeDimensionCircularPoints[1] = flatCircularPoints[1];
+			threeDimensionCircularPoints[2] = zedCircluarPoints[0];
+		}
+		
+		//zedCircluarPoints = this.getCircularPointsRaw(cX, cY, flatCircularPoints[1], 360-angleOffAxis);
+		//threeDimensionCircularPoints[2] = zedCircluarPoints[0];
+		
+		/*
+		if(angleOffAxis<90 || (angleOffAxis>270 && angleOffAxis<360))
+		{
+			threeDimensionCircularPoints[2] = zedCircluarPoints[0];
+		}
+		else if( (angleOffAxis>90 && angleOffAxis<180) || (angleOffAxis>180 && angleOffAxis<270))
+		{
+			threeDimensionCircularPoints[2] = zedCircluarPoints[1];
+		}
+		*/
+		return threeDimensionCircularPoints;
+	}
 	
 	subtractiveFade = function(fadeLevel)
 	{
