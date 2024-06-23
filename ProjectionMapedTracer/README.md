@@ -25,3 +25,6 @@ cd into the directory
 npx vite --host
 `````
 
+6. Launch your web browser to https://localhost:8080
+7. Click point a, click point b
+
