@@ -132,6 +132,8 @@ class pixelMaper
 		angleFromTopLeftoRight+=180;
 		circCoOrds[0] = circleX + Math.sin(angleFromTopLeftoRight*(Math.PI / 180))*circleR ;
 		circCoOrds[1] = circleY - Math.cos(angleFromTopLeftoRight*(Math.PI / 180))*circleR;
+		circCoOrds[0] = Math.round((circCoOrds[0] + Number.EPSILON) * 100) / 100;
+		circCoOrds[1] = Math.round((circCoOrds[1] + Number.EPSILON) * 100) / 100;		
 		return circCoOrds;
 	}
 	
@@ -168,8 +170,8 @@ class pixelMaper
 		else if(angleOffAxis<270)
 		{
 			threeDimensionCircularPoints[0] = flatCircularPoints[0];
-			threeDimensionCircularPoints[1] = zedCircluarPoints[0];
-			threeDimensionCircularPoints[2] = flatCircularPoints[1];
+			threeDimensionCircularPoints[1] = flatCircularPoints[1];
+			threeDimensionCircularPoints[2] = zedCircluarPoints[0];
 		}
 		else
 		{
@@ -177,23 +179,130 @@ class pixelMaper
 			threeDimensionCircularPoints[1] = flatCircularPoints[1];
 			threeDimensionCircularPoints[2] = zedCircluarPoints[0];
 		}
-		
-		//zedCircluarPoints = this.getCircularPointsRaw(cX, cY, flatCircularPoints[1], 360-angleOffAxis);
-		//threeDimensionCircularPoints[2] = zedCircluarPoints[0];
-		
-		/*
-		if(angleOffAxis<90 || (angleOffAxis>270 && angleOffAxis<360))
-		{
-			threeDimensionCircularPoints[2] = zedCircluarPoints[0];
-		}
-		else if( (angleOffAxis>90 && angleOffAxis<180) || (angleOffAxis>180 && angleOffAxis<270))
-		{
-			threeDimensionCircularPoints[2] = zedCircluarPoints[1];
-		}
-		*/
 		return threeDimensionCircularPoints;
 	}
-	
+	get3DPoints = function (radius, angleFromTopLeftoRight, angleOffAxis)
+	{
+		var points3D = [0,0,0];
+		points3D[0] = radius * Math.cos(angleFromTopLeftoRight*(Math.PI/180)) * Math.sin(angleOffAxis*(Math.PI/180));
+		points3D[1] = radius * Math.sin(angleFromTopLeftoRight*(Math.PI/180)) * Math.sin(angleOffAxis*(Math.PI/180));
+		points3D[2] = radius * Math.cos(angleOffAxis*(Math.PI/180));
+		return points3D;
+	}
+	get3DPointsCentered = function (radius, angleFromTopLeftoRight, angleOffAxis, cX, cY, cZ)
+	{
+		var points3D = [0,0,0];
+		points3D[0] = radius * Math.cos(angleFromTopLeftoRight*(Math.PI/180)) * Math.sin(angleOffAxis*(Math.PI/180));
+		points3D[1] = radius * Math.sin(angleFromTopLeftoRight*(Math.PI/180)) * Math.sin(angleOffAxis*(Math.PI/180));
+		points3D[2] = radius * Math.cos(angleOffAxis*(Math.PI/180));
+		points3D[0] = cX+points3D[0];
+		points3D[1] = cY+points3D[1];
+		points3D[2] = cZ+points3D[2];
+		return points3D;
+	}
+	get3DModulatedPointsCentered = function (radius, angleFromTopLeftoRight, angleOffAxis, cX, cY, cZ, freqModulator, ampModulator)
+	{
+		var points3D = [0,0,0];
+		//s angleFromTopLeftoRight
+		//t angleOffAxis
+		points3D[0] = (radius * Math.sin(angleOffAxis*freqModulator*(Math.PI/180)))* ampModulator * Math.cos(angleFromTopLeftoRight*(Math.PI/180)) * Math.sin(angleOffAxis*(Math.PI/180));
+		points3D[1] = (radius * Math.sin(angleOffAxis*freqModulator*(Math.PI/180)))* ampModulator * Math.sin(angleFromTopLeftoRight*(Math.PI/180)) * Math.sin(angleOffAxis*(Math.PI/180));
+		points3D[2] = (radius * Math.sin(angleOffAxis*freqModulator*(Math.PI/180)))* ampModulator * Math.cos(angleOffAxis*(Math.PI/180));
+		points3D[0] = cX+points3D[0];
+		points3D[1] = cY+points3D[1];
+		points3D[2] = cZ+points3D[2];
+		return points3D;
+	}
+	sphericalPoints = function(radius, angleFromTopLeftoRight, angleOffAxis, cX, cY, cZ, axis, selectedRadius, pointAngle)
+	{
+		var points3D = [0,0,0];
+		var circularPoints = [0,0];
+		
+		points3D = this.get3DPointsCentered(radius, angleFromTopLeftoRight, angleOffAxis, cX, cY, cZ);
+		points3D = this.remapAxisPoints(axis, points3D);
+		
+		circularPoints = this.getCircularPointsRaw(points3D[0], points3D[1], selectedRadius, pointAngle);
+		return circularPoints;
+	}
+	remapAxisPoints = function (axis, points3D)
+	{
+		var remapedPoints = [0,0,0];
+		
+		if(axis==0)
+		{
+			remapedPoints[0] = points3D[0];
+			remapedPoints[1] = points3D[1];
+			remapedPoints[2] = points3D[2];
+		}
+		else if(axis==1)
+		{
+			remapedPoints[0] = points3D[0];
+			remapedPoints[1] = points3D[2];
+			remapedPoints[2] = points3D[1];
+		}
+		else if(axis==2)
+		{
+			remapedPoints[0] = points3D[2];
+			remapedPoints[1] = points3D[1];
+			remapedPoints[2] = points3D[0];
+		}
+		return remapedPoints;
+	}
+	measureDistance = function(objectA3DPoints, objectB3DPoints)
+	{
+		var adj=0, hyp=0, opp=0, theta=0;
+		//Work out the Adjecent length
+		adj = objectB3DPoints[0]-objectA3DPoints[0];
+		opp = objectB3DPoints[1]-objectA3DPoints[1];
+		theta = Math.atan(opp/adj)*(180/Math.PI);
+		if(theta==0 && adj==0)
+		{
+			return opp;
+		}
+		else if(theta==0 && opp==0)
+		{
+			return adj;
+		}
+		hyp = opp/Math.sin(theta*(Math.PI/180));
+		hyp = Math.round((hyp + Number.EPSILON) * 100) / 100;
+		return Math.abs(hyp);
+	}
+	measureAngle = function(objectA3DPoints, objectB3DPoints)
+	{
+		var adj=0, opp=0, theta=0;
+		//Work out the Adjecent length
+		adj = objectB3DPoints[0]-objectA3DPoints[0];
+		opp = objectB3DPoints[1]-objectA3DPoints[1];
+		theta = Math.atan(opp/adj)*(180/Math.PI);
+		if(objectB3DPoints[0]>=objectA3DPoints[0] && objectB3DPoints[1]>=objectA3DPoints[1])
+		{
+			theta = 270+theta;
+		}
+		else if(objectB3DPoints[0]>=objectA3DPoints[0] && objectB3DPoints[1]<=objectA3DPoints[1])
+		{
+			theta = 270-Math.abs(theta);
+		}
+		else if(objectB3DPoints[0]<=objectA3DPoints[0] && objectB3DPoints[1]<=objectA3DPoints[1])
+		{
+			theta = 90+theta;
+		}
+		else if(objectB3DPoints[0]<=objectA3DPoints[0] && objectB3DPoints[1]>=objectA3DPoints[1])
+		{
+			theta = 90+theta;
+		}
+		theta = Math.round((theta + Number.EPSILON) * 100) / 100;
+		return theta;
+	}
+	measureAngleRaw = function(objectA3DPoints, objectB3DPoints)
+	{
+		var adj=0, opp=0, theta=0;
+		//Work out the Adjecent length
+		adj = objectB3DPoints[1]-objectA3DPoints[1];
+		opp = objectB3DPoints[0]-objectA3DPoints[0];
+		theta = Math.atan(opp/adj)*(180/Math.PI);
+		theta = Math.round((theta + Number.EPSILON) * 100) / 100;
+		return theta;
+	}
 	subtractiveFade = function(fadeLevel)
 	{
 		var xCnt=0, yCnt=0;
@@ -396,12 +505,10 @@ class pixelMaper
 		
 		return [horizontalMap[0],verticalMap[1],horizontalMap[1]];
 	}
-	
 	pixelAt = function(x, y)
 	{
 		return this.bitmapArray[y][x];
 	}
-	
 	hasColour = function(x, y)
 	{
 		if( (this.bitmapArray[y][x][0]+this.bitmapArray[y][x][1]+this.bitmapArray[y][x][2])>0 )
@@ -413,17 +520,31 @@ class pixelMaper
 			return 0;
 		}
 	}
-	
 	getHeight = function(x, y, range)
 	{
 		var currentPixel = this.pixelAt(x, y);
 		var returnValue = currentPixel[0]+currentPixel[1]+currentPixel[2];
 		return (returnValue/(256*3))*range;
 	}
-	
 	getWave = function(counter, minWave, maxWave)
 	{
 		return ( Math.sin(counter)*((maxWave-minWave)/2) )+( maxWave-((maxWave-minWave)/2) );
 	}
+	moveObjectAtoB = function (objectAPoints, objectBPoints, amountToMove)
+	{
+		var angleFromAtoB = this.measureAngle(objectAPoints, objectBPoints);
+		var distance = this.measureDistance(objectAPoints, objectAPoints);
+		var shiftTo = this.getCircularPoints(objectAPoints[0], objectAPoints[1], amountToMove, angleFromAtoB);
+		return shiftTo;
+	}
+	randomDirectionalVectors = function()
+	{
+		var rotationVectors = [0,0,0];
+		if( Math.round(Math.random()) == 1 ){rotationVectors[0]=1;}else{rotationVectors[0]=-1;}
+		if( Math.round(Math.random()) == 1 ){rotationVectors[1]=1;}else{rotationVectors[1]=-1;}
+		if( Math.round(Math.random()) == 1 ){rotationVectors[2]=1;}else{rotationVectors[2]=-1;}
+		return rotationVectors;
+	}
+	
 }
 export default pixelMaper;

@@ -13,6 +13,11 @@ class timerObject
 		this.timerArray.push([timerName,0,0,0]);
 		this.numberOfItems = this.timerArray.length;
 	}
+	deleteTimer = function(timerName)
+	{
+		this.timerArray.splice(this.getTimerIndex(timerName),1);
+		this.numberOfItems--;
+	}
 	startTimer =  function(timerName, timeOut)
 	{
 		this.currentTimer = this.getTimerIndex(timerName);
@@ -37,6 +42,11 @@ class timerObject
 			{
 				return 0;
 			}
+		}
+		else
+		{
+			console.log("Timer not found!");
+			return -1;
 		}
 	}
 	

@@ -70,13 +70,19 @@ class CCGenerator
 		this._rgba = 'rgba('+this._currentColour[0]+','+this._currentColour[1]+','+this._currentColour[2]+',1)';
 	}
 	
+	getRGBARounded = function(colourIndex)
+	{
+		this.getColour(colourIndex);
+		this._rgba = 'rgba('+Math.round(this._currentColour[0])+','+Math.round(this._currentColour[1])+','+Math.round(this._currentColour[2])+',1)';
+	}
+	
 	gradientGenerator = function(colourIndex, bandWidth)
 	{
 		for(this._cnt=0; this._cnt<3; this._cnt++)
 		{
 			//fill modifier
 			if(this._colourTable[1][this._cnt]>this._colourTable[0][this._cnt]) { this._modifierTable[0][this._cnt]=1; }
-			else if(this._colourTable[1][this._cnt]<this._colourTable[0][this.cnt]) { this._modifierTable[0][this._cnt]=-1; }
+			else if(this._colourTable[1][this._cnt]<this._colourTable[0][this._cnt]) { this._modifierTable[0][this._cnt]=-1; }
 			else if(this._colourTable[1][this._cnt]==this._colourTable[0][this._cnt]) { this._modifierTable[0][this._cnt]=0; }
 
 			//fill step value
